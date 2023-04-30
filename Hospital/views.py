@@ -1,0 +1,58 @@
+from django.shortcuts import render
+from rest_framework.views import APIView
+from rest_framework.authentication import TokenAuthentication
+from CleverDoctor.Authentication import CsrfExemptSessionAuthentication
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.response import Response
+from CleverDoctor.settings import STATUS_CODE
+from CleverDoctor.utils import My_page
+from .models import Department
+from .serializers import IntroDepartmentSerializers, AllDepartmentSerializers
+
+
+class AddDepartment(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication, TokenAuthentication)
+    permission_classes = [IsAdminUser]
+
+    def post(self, request):
+        name = request.data["name"]
+        try:
+            Department.objects.get(name=name)
+            return Response({"code": STATUS_CODE["fail"], "msg": "创建失败，该科室已存在！"})
+        except:
+            Department.objects.create(name=name)
+            return Response({"code": STATUS_CODE["success"], "msg": "创建成功！"})
+
+
+class DeleteDepartment(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication, TokenAuthentication)
+    permission_classes = [IsAdminUser]
+
+    def delete(self, request):
+        department_id = request.query_params.get("id")
+        Department.objects.get(id=department_id).delete()
+        return Response({"code": STATUS_CODE["success"], "msg": "删除成功"})
+
+
+class DepartmentIndex(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication, TokenAuthentication)
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        page = My_page()
+        departments = Department.objects.all()
+        page_list = page.paginate_queryset(departments, request, view=self)
+        return Response(
+            {'code': STATUS_CODE['success'],
+             'msg': [IntroDepartmentSerializers(department, context={"request": request}, many=False).data for
+                     department in page_list]})
+
+
+class BriefDepartment(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication, TokenAuthentication)
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response(
+            {'code': STATUS_CODE['success'],
+             'msg': [AllDepartmentSerializers(department).data for department in Department.objects.all()]})
