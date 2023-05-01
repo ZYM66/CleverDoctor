@@ -185,3 +185,21 @@ class AllMyDiagnose(APIView):
             {"code": STATUS_CODE["success"], "personal_msg": BriefInfoSerializer(user).data,
              "diag_msg": [DetailDiagnosisSerializer(diag, context={"request": request}, many=False).data for diag in
                           page_list]})
+
+
+class UploadPicture(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication, TokenAuthentication)
+    permission_classes = [IsAuthenticated]
+
+    #
+    # def get(self, request):
+    #     user = request.user
+    #     serializer = UserSerializer(user)
+    #     return Response(serializer.data)
+
+    def post(self, request):
+        user = request.user
+        user.avatar = request.FILES.get('avatar')
+        user.save()
+        serializer = DetailInfoSerializer(user)
+        return Response({"code": STATUS_CODE["success"], "msg": "上传成功!", "detail_info": serializer.data})

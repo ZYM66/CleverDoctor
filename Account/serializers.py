@@ -41,7 +41,7 @@ class AccountCertifiedSerializer(serializers.ModelSerializer):
         fields = ["real_name", "department", "introduction", "major", "telephone"]
 
     def update(self, instance, validated_data):
-        if instance.telephone != validated_data.get('telephone', instance.telephone):
+        if instance.telephone != validated_data.get('telephone', instance.telephone) and validated_data["telephone"]:
             instance.telephone = validated_data.get('telephone', instance.telephone)
         instance.real_name = validated_data.get('real_name', instance.real_name)
         instance.introduction = validated_data.get('introduction', instance.introduction)
@@ -64,7 +64,7 @@ class DetailInfoSerializer(BriefInfoSerializer):
     class Meta:
         model = Account
         fields = ["id", "role", "real_name", "department", "telephone", "avatar",
-                  "introduction", "major", "age", "gender"]
+                  "introduction", "major", "age", "gender", "avatar"]
 
     def get_department(self, obj):
         try:
@@ -111,4 +111,3 @@ class DetailDiagnosisSerializer(serializers.ModelSerializer):
 
     def get_patient(self, obj):
         return obj.patient.nick_name
-
