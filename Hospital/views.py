@@ -18,10 +18,12 @@ class AddDepartment(APIView):
         name = request.data["name"]
         try:
             Department.objects.get(name=name)
-            return Response({"code": STATUS_CODE["fail"], "msg": "创建失败，该科室已存在！"})
+            return Response({"code": STATUS_CODE["fail"], "msg": "创建失败，该科室已存在！",
+                             "info": {"name": name, "id": Department.objects.get(name=name).id}})
         except:
             Department.objects.create(name=name)
-            return Response({"code": STATUS_CODE["success"], "msg": "创建成功！"})
+            return Response({"code": STATUS_CODE["success"], "msg": "创建成功！",
+                             "info": {"name": name, "id": Department.objects.get(name=name).id}})
 
 
 class DeleteDepartment(APIView):

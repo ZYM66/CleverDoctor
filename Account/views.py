@@ -11,6 +11,7 @@ from CleverDoctor.settings import STATUS_CODE
 from .serializers import AccountRegisterSerializer, AccountLoginSerializer, AccountCertifiedSerializer, \
     BriefInfoSerializer, DetailInfoSerializer, ChangeSerializer, DiagnosisSerializer, DetailDiagnosisSerializer
 from .models import Account, DiagnosticRecords
+from django.db.models import Q
 from CleverDoctor.utils import My_page
 
 
@@ -73,6 +74,8 @@ class CertifiedDoctor(APIView):
         try:
             message = AccountCertifiedSerializer(instance=user, data=request.data)
             message.update(instance=user, validated_data=request.data)
+            user.avatar = request.FILES.get("avatar")
+            user.save()
             return Response(
                 {"code": STATUS_CODE["success"], "msg": "认证成功！",
                  "detail_data": DetailInfoSerializer(user).data})
@@ -97,7 +100,7 @@ class AllDoctor(APIView):
 
     def get(self, request):
         page = My_page()
-        doctors = Account.objects.filter(role='d')
+        doctors = Account.objects.filter(Q(role='d') & Q(is_active=1))
         page_list = page.paginate_queryset(doctors, request, view=self)
         return Response(
             {'code': STATUS_CODE['success'],
@@ -111,13 +114,18 @@ class EditDoctor(APIView):
     permission_classes = [IsAdminUser]
 
     def post(self, request):
-        doctor_id = request.query_params.get("id")
-        doctor = Account.objects.get(id=doctor_id)
-        message = AccountCertifiedSerializer(instance=doctor, data=request.data)
-        message.update(instance=doctor, validated_data=request.data)
-        return Response(
-            {"code": STATUS_CODE["success"], "msg": "编辑成功！",
-             "detail_data": DetailInfoSerializer(doctor).data})
+        try:
+            doctor_id = request.query_params.get("id")
+            doctor = Account.objects.get(id=doctor_id)
+            message = AccountCertifiedSerializer(instance=doctor, data=request.data)
+            message.update(instance=doctor, validated_data=request.data)
+            doctor.avatar = request.FILES.get("avatar")
+            doctor.save()
+            return Response(
+                {"code": STATUS_CODE["success"], "msg": "编辑成功！",
+                 "detail_data": DetailInfoSerializer(doctor).data})
+        except:
+            return Response({"code": STATUS_CODE["fail"], "msg": "该电话号码已经被使用！"})
 
 
 class DeleteDoctor(APIView):
@@ -129,10 +137,10 @@ class DeleteDoctor(APIView):
             doctor_id = request.query_params.get("id")
             doctor = Account.objects.get(id=doctor_id)
             if doctor.is_active:
-                return Response({"code": STATUS_CODE["success"], "msg": "删除成功！"})
-            else:
                 doctor.is_active = 0
                 doctor.save()
+                return Response({"code": STATUS_CODE["success"], "msg": "删除成功！"})
+            else:
                 return Response({"code": STATUS_CODE["fail"], "msg": "错误删除！该医生早已被删除"})
         except:
             return Response({"code": STATUS_CODE["fail"], "msg": "错误删除！该医生不存在"})
@@ -146,6 +154,7 @@ class ChangeInformation(APIView):
         user = request.user
         message = ChangeSerializer(user, request.data)
         message.update(user, request.data)
+
         return Response(
             {"code": STATUS_CODE["success"], "msg": "信息更改成功", "detail_info": BriefInfoSerializer(user).data})
 

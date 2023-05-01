@@ -5,7 +5,7 @@ from Hospital.models import Department
 
 def pic_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/<id>/<filename>
-    return f"media/{instance.id}/{filename}"
+    return f"user_{instance.id}/{filename}"
 
 
 # Create your models here.
