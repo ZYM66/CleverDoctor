@@ -46,7 +46,7 @@ class AccountCertifiedSerializer(serializers.ModelSerializer):
         instance.real_name = validated_data.get('real_name', instance.real_name)
         instance.introduction = validated_data.get('introduction', instance.introduction)
         instance.major = validated_data.get('major', instance.major)
-        instance.department.add(Department.objects.get(id=validated_data.get("department", instance.department)))
+        instance.department.add(*validated_data.get("department", instance.department).split(','))
         instance.role = 'd'
         instance.save()
         return instance

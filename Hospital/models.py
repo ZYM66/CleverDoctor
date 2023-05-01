@@ -11,3 +11,6 @@ from django.db import models
 
 class Department(models.Model):
     name = models.CharField(verbose_name="科室", max_length=200)
+
+    class Meta:
+        verbose_name = "科室"

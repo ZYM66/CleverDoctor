@@ -12,7 +12,8 @@ def pic_path(instance, filename):
 class Account(AbstractUser):
     """用户"""
     ROLES = (('p', "patient"),
-             ('d', "Doctor"))
+             ('d', "Doctor"),
+             ('a', "administrator"))
     GENDER = (('f', 'female'),
               ('m', 'male'),
               ('s', 'secret'))
@@ -41,3 +42,6 @@ class DiagnosticRecords(models.Model):
     patient = models.ForeignKey(verbose_name="患者", to="Account", related_name="pat_diag", on_delete=models.CASCADE)
     symptom = models.TextField(verbose_name="患者症状", default="")
     therapeutic_method = models.TextField(verbose_name="处理方法", default="")
+
+    class Meta:
+        verbose_name = "诊断信息"
