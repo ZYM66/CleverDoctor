@@ -74,7 +74,8 @@ class CertifiedDoctor(APIView):
         try:
             message = AccountCertifiedSerializer(instance=user, data=request.data)
             message.update(instance=user, validated_data=request.data)
-            user.avatar = request.FILES.get("avatar")
+            if request.FILES.get("avatar"):
+                user.avatar = request.FILES.get("avatar")
             user.save()
             return Response(
                 {"code": STATUS_CODE["success"], "msg": "认证成功！",
@@ -120,7 +121,8 @@ class EditDoctor(APIView):
             doctor = Account.objects.get(id=doctor_id)
             message = AccountCertifiedSerializer(instance=doctor, data=request.data)
             message.update(instance=doctor, validated_data=request.data)
-            doctor.avatar = request.FILES.get("avatar")
+            if request.FILES.get("avatar"):
+                doctor.avatar = request.FILES.get("avatar")
             doctor.save()
             return Response(
                 {"code": STATUS_CODE["success"], "msg": "编辑成功！",

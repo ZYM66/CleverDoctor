@@ -36,7 +36,7 @@ class DeleteDepartment(APIView):
         return Response({"code": STATUS_CODE["success"], "msg": "删除成功"})
 
 
-class DepartmentIndex(APIView):
+class BriefDepartment(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication, TokenAuthentication)
     permission_classes = [IsAuthenticated]
 
@@ -46,15 +46,29 @@ class DepartmentIndex(APIView):
         page_list = page.paginate_queryset(departments, request, view=self)
         return Response(
             {'code': STATUS_CODE['success'],
-             'msg': [IntroDepartmentSerializers(department, context={"request": request}, many=False).data for
+             'total_page': page.count_pages,
+             'num_data': len(departments),
+             'msg': [AllDepartmentSerializers(department, context={"request": request}, many=False).data for
                      department in page_list]})
 
 
-class BriefDepartment(APIView):
+# class BriefDepartment(APIView):
+#     authentication_classes = (CsrfExemptSessionAuthentication, TokenAuthentication)
+#     permission_classes = [IsAuthenticated]
+#
+#     def get(self, request):
+#         return Response(
+#             {'code': STATUS_CODE['success'],
+#              'msg': [AllDepartmentSerializers(department).data for department in Department.objects.all()]})
+
+
+class ReadDepartment(APIView):
     authentication_classes = (CsrfExemptSessionAuthentication, TokenAuthentication)
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        department_id = request.query_params.get('department_id')
+        print(department_id)
         return Response(
             {'code': STATUS_CODE['success'],
-             'msg': [AllDepartmentSerializers(department).data for department in Department.objects.all()]})
+             'msg': IntroDepartmentSerializers(Department.objects.get(id=department_id)).data})

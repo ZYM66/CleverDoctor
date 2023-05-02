@@ -43,10 +43,16 @@ class AccountCertifiedSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         if instance.telephone != validated_data.get('telephone', instance.telephone) and validated_data["telephone"]:
             instance.telephone = validated_data.get('telephone', instance.telephone)
-        instance.real_name = validated_data.get('real_name', instance.real_name)
-        instance.introduction = validated_data.get('introduction', instance.introduction)
-        instance.major = validated_data.get('major', instance.major)
-        instance.department.add(*validated_data.get("department", instance.department).split(','))
+        if validated_data.get("real_name", ''):
+            instance.real_name = validated_data['real_name']
+        if validated_data.get('introduction', ''):
+            instance.introduction = validated_data.get('introduction', instance.introduction)
+        if validated_data.get('major', ''):
+            instance.major = validated_data.get('major', instance.major)
+        if validated_data.get('department', ''):
+            temp_department = validated_data.get("department", instance.department).split(',')
+            instance.department.clear()
+            instance.department.add(*temp_department)
         instance.role = 'd'
         instance.save()
         return instance
@@ -81,9 +87,12 @@ class ChangeSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         if instance.telephone != validated_data.get('telephone', instance.telephone) and validated_data["telephone"]:
             instance.telephone = validated_data.get('telephone', instance.telephone)
-        instance.real_name = validated_data.get('real_name', instance.real_name)
-        instance.age = validated_data.get('age', instance.age)
-        instance.gender = validated_data.get('gender', instance.gender)
+        if validated_data.get('real_name', ""):
+            instance.real_name = validated_data.get('real_name', instance.real_name)
+        if validated_data.get('age', ''):
+            instance.age = validated_data.get('age', instance.age)
+        if validated_data.get('gender', ""):
+            instance.gender = validated_data.get('gender', instance.gender)
         instance.save()
         return instance
 
