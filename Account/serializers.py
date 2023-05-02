@@ -11,7 +11,7 @@ class AccountRegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Account
-        fields = ["email", "password", "nick_name"]
+        fields = ["email", "password", "real_name"]
 
     def create(self, validated_data):  # validated_data已经验证过的数据  字典类型
         if Account.objects.filter(username=validated_data["username"]):
@@ -55,7 +55,7 @@ class AccountCertifiedSerializer(serializers.ModelSerializer):
 class BriefInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
-        fields = ["nick_name", "role", "id", "telephone", "age", "gender"]
+        fields = ["real_name", "role", "id", "telephone", "age", "gender"]
 
 
 class DetailInfoSerializer(BriefInfoSerializer):
@@ -64,7 +64,7 @@ class DetailInfoSerializer(BriefInfoSerializer):
     class Meta:
         model = Account
         fields = ["id", "role", "real_name", "department", "telephone", "avatar",
-                  "introduction", "major", "age", "gender", "avatar"]
+                  "introduction", "major", "age", "gender"]
 
     def get_department(self, obj):
         try:
@@ -76,12 +76,12 @@ class DetailInfoSerializer(BriefInfoSerializer):
 class ChangeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
-        fields = ["nick_name", "telephone", "age", "gender"]
+        fields = ["real_name", "telephone", "age", "gender"]
 
     def update(self, instance, validated_data):
         if instance.telephone != validated_data.get('telephone', instance.telephone) and validated_data["telephone"]:
             instance.telephone = validated_data.get('telephone', instance.telephone)
-        instance.nick_name = validated_data.get('nick_name', instance.nick_name)
+        instance.real_name = validated_data.get('real_name', instance.real_name)
         instance.age = validated_data.get('age', instance.age)
         instance.gender = validated_data.get('gender', instance.gender)
         instance.save()
