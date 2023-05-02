@@ -103,11 +103,11 @@ class AllDoctor(APIView):
         doctors = Account.objects.filter(Q(role='d') & Q(is_active=1))
         page_list = page.paginate_queryset(doctors, request, view=self)
         return Response(
-            {'code': STATUS_CODE['success'],
+            {'code': STATUS_CODE['success'], "total_page": page.count_pages, "num_data": len(doctors),
              'info': [DetailInfoSerializer(doctor, context={"request": request}, many=False).data for doctor in
                       page_list if
                       doctor.is_active],
-             "total_page": page.count_pages})
+             })
 
 
 class EditDoctor(APIView):
@@ -193,8 +193,9 @@ class AllMyDiagnose(APIView):
         page_list = page.paginate_queryset(diagnosis, request, view=self)
         return Response(
             {"code": STATUS_CODE["success"], "personal_msg": BriefInfoSerializer(user).data,
+             "total_page": page.count_pages, "num_data": len(diagnosis),
              "diag_msg": [DetailDiagnosisSerializer(diag, context={"request": request}, many=False).data for diag in
-                          page_list], "total_page": page.count_pages})
+                          page_list], })
 
 
 class UploadPicture(APIView):
