@@ -119,4 +119,4 @@ class DetailDiagnosisSerializer(serializers.ModelSerializer):
         return obj.diagnostic_department.name
 
     def get_patient(self, obj):
-        return obj.patient.nick_name
+        return obj.patient.real_name
