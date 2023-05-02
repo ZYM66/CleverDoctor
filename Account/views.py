@@ -106,7 +106,8 @@ class AllDoctor(APIView):
             {'code': STATUS_CODE['success'],
              'info': [DetailInfoSerializer(doctor, context={"request": request}, many=False).data for doctor in
                       page_list if
-                      doctor.is_active]})
+                      doctor.is_active],
+             "total_page": page.count_pages})
 
 
 class EditDoctor(APIView):
@@ -193,7 +194,7 @@ class AllMyDiagnose(APIView):
         return Response(
             {"code": STATUS_CODE["success"], "personal_msg": BriefInfoSerializer(user).data,
              "diag_msg": [DetailDiagnosisSerializer(diag, context={"request": request}, many=False).data for diag in
-                          page_list]})
+                          page_list], "total_page": page.count_pages})
 
 
 class UploadPicture(APIView):
