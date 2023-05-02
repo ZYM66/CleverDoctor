@@ -9,10 +9,12 @@ from django.contrib import auth
 from django.contrib.auth.hashers import check_password
 from CleverDoctor.settings import STATUS_CODE
 from .serializers import AccountRegisterSerializer, AccountLoginSerializer, AccountCertifiedSerializer, \
-    BriefInfoSerializer, DetailInfoSerializer, ChangeSerializer, DiagnosisSerializer, DetailDiagnosisSerializer
+    BriefInfoSerializer, DetailInfoSerializer, ChangeSerializer, DiagnosisSerializer, DetailDiagnosisSerializer, \
+    ChangeDiagnosisSerializer
 from .models import Account, DiagnosticRecords
 from django.db.models import Q
 from CleverDoctor.utils import My_page
+from Hospital.models import Department
 
 
 # Create your views here.
@@ -101,8 +103,12 @@ class AllDoctor(APIView):
 
     def get(self, request):
         page = My_page()
-        doctors = Account.objects.filter(Q(role='d') & Q(is_active=1))
+        role = request.query_params.get("role", "")
+        role = 'd' if not role else role
+        doctors = Account.objects.filter(Q(role=role) & Q(is_active=1))
         page_list = page.paginate_queryset(doctors, request, view=self)
+        if role == 'p' and request.user.role != 'a':
+            return Response({'code': STATUS_CODE['fail'], 'msg': "你不是管理员，不能直接访问患者！"})
         return Response(
             {'code': STATUS_CODE['success'], "total_page": page.count_pages, "num_data": len(doctors),
              'info': [DetailInfoSerializer(doctor, context={"request": request}, many=False).data for doctor in
@@ -216,3 +222,19 @@ class UploadPicture(APIView):
         user.save()
         serializer = DetailInfoSerializer(user)
         return Response({"code": STATUS_CODE["success"], "msg": "上传成功!", "detail_info": serializer.data})
+
+
+class ChangeDiagnose(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication, TokenAuthentication)
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        diag_id = request.query_params.get("diag_id")
+        diag = DiagnosticRecords.objects.get(id=diag_id)
+        if user.role == "p" or user != diag.attending_doctor:
+            return Response({"code": STATUS_CODE['fail'], "msg": "你无权限更改该就诊记录！"})
+        message = ChangeDiagnosisSerializer(diag)
+        message.update(diag, request.data)
+        return Response(
+            {"code": STATUS_CODE['success'], "msg": "更改成功！", "info": DetailDiagnosisSerializer(diag).data})

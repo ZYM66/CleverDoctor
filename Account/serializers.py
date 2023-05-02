@@ -120,3 +120,17 @@ class DetailDiagnosisSerializer(serializers.ModelSerializer):
 
     def get_patient(self, obj):
         return obj.patient.real_name
+
+
+class ChangeDiagnosisSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DiagnosticRecords
+        fields = ["symptom", "therapeutic_method"]
+
+    def update(self, instance, validated_data):
+        if validated_data.get('symptom', ""):
+            instance.symptom = validated_data['symptom']
+        if validated_data.get("therapeutic_method", ""):
+            instance.therapeutic_method = validated_data['therapeutic_method']
+        instance.save()
+        return instance
