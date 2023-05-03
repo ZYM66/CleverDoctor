@@ -13,7 +13,8 @@ class Account(AbstractUser):
     """用户"""
     ROLES = (('p', "patient"),
              ('d', "Doctor"),
-             ('a', "administrator"))
+             ('a', "administrator"),
+             ('g', 'guest'))
     GENDER = (('f', 'female'),
               ('m', 'male'),
               ('s', 'secret'))

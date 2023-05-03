@@ -1,5 +1,5 @@
 from .views import CreateUser, Login, Logout, CertifiedDoctor, DetailPerson, AllDoctor, EditDoctor, DeleteDoctor, \
-    ChangeInformation, Diagnose, AllMyDiagnose, UploadPicture, ChangeDiagnose
+    ChangeInformation, Diagnose, AllMyDiagnose, UploadPicture, ChangeDiagnose, GuestLogin
 from django.urls import path
 
 urlpatterns = [
@@ -15,5 +15,6 @@ urlpatterns = [
     path("diagnose/", Diagnose.as_view()),
     path("my_diagnose/", AllMyDiagnose.as_view()),
     path("upload_pic/", UploadPicture.as_view()),
-    path("change_diag/", ChangeDiagnose.as_view())
+    path("change_diag/", ChangeDiagnose.as_view()),
+    path("guest_login/", GuestLogin.as_view())
 ]

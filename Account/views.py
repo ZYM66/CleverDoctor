@@ -73,6 +73,8 @@ class CertifiedDoctor(APIView):
 
     def post(self, request):
         user = request.user
+        if user.role == 'g':
+            return Response({"code": STATUS_CODE['fail'], "msg": "游客无法使用该功能！"})
         try:
             message = AccountCertifiedSerializer(instance=user, data=request.data)
             message.update(instance=user, validated_data=request.data)
@@ -161,6 +163,8 @@ class ChangeInformation(APIView):
 
     def post(self, request):
         user = request.user
+        if user.role == 'g':
+            return Response({"code": STATUS_CODE['fail'], "msg": "游客无法使用该功能！"})
         message = ChangeSerializer(user, request.data)
         message.update(user, request.data)
 
@@ -193,6 +197,8 @@ class AllMyDiagnose(APIView):
 
     def get(self, request):
         user = request.user
+        if user.role == 'g':
+            return Response({"code": STATUS_CODE['fail'], "msg": "游客无法使用该功能！"})
         page = My_page()
         if user.role == 'd':
             diagnosis = user.doc_diag.all()
@@ -232,9 +238,40 @@ class ChangeDiagnose(APIView):
         user = request.user
         diag_id = request.query_params.get("diag_id")
         diag = DiagnosticRecords.objects.get(id=diag_id)
-        if user.role == "p" or user != diag.attending_doctor:
+        if user.role != "d" or user != diag.attending_doctor:
             return Response({"code": STATUS_CODE['fail'], "msg": "你无权限更改该就诊记录！"})
         message = ChangeDiagnosisSerializer(diag)
         message.update(diag, request.data)
         return Response(
             {"code": STATUS_CODE['success'], "msg": "更改成功！", "info": DetailDiagnosisSerializer(diag).data})
+
+
+class GuestLogin(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication, TokenAuthentication)
+    permission_classes = (AllowAny,)
+
+    def get(self, request):
+        real_name = str(len(Account.objects.all())) + "@YouKe.com"
+        validated_data = {"real_name": real_name, "password": "afsdhkfajhsdgjk", "username": real_name}
+        vd = {"email": real_name, "password": "afsdhkfajhsdgjk"}
+        guest = Account.objects.create_user(**validated_data)  # **解包 将字典解包为key value的关键字参数
+        guest.role = 'g'
+        guest.save()
+        login = AccountLoginSerializer(data=vd)
+        if login.is_valid():
+            try:
+                user = Account.objects.get(username=login.validated_data["username"])
+                if check_password(login.validated_data["password"], user.password):
+                    auth.login(request, user)
+                    try:
+                        token = Token.objects.get(user=user).key
+                    except:
+                        token = Token.objects.create(user=user).key
+                    return Response(
+                        {'code': STATUS_CODE["success"], "msg": "您现在为游客模式，解锁更多功能请登录", "token": token,
+                         "info": BriefInfoSerializer(user).data})
+                else:
+                    return Response({"code": STATUS_CODE["fail"], "msg": "账号或密码错误！"})
+            except:
+                return Response({"code": STATUS_CODE["fail"], "msg": "账号或密码错误！"})
+        return Response({"code": STATUS_CODE["fail"], "msg": "邮箱格式错误！"})
