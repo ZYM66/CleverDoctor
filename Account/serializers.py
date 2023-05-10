@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
-from Account.models import Account, DiagnosticRecords
+from Account.models import Account, DiagnosticRecords, Context, Conversion
 from Hospital.models import Department
 
 
@@ -134,3 +134,28 @@ class ChangeDiagnosisSerializer(serializers.ModelSerializer):
             instance.therapeutic_method = validated_data['therapeutic_method']
         instance.save()
         return instance
+
+
+class DetailMessage(serializers.ModelSerializer):
+    conversion = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Context
+        fields = ["speaker", "send_time", "content", "conversion"]
+
+    def get_conversion(self, obj):
+        return DetailConversion(obj.conversion).data
+
+
+class DetailConversion(serializers.ModelSerializer):
+    context = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Conversion
+        fields = ["context"]
+
+    def get_context(self, obj):
+        ret = {obj.patient.id:[], obj.doctor.id:[]}
+        for cont in obj.context.all():
+            ret[cont.speaker.id].append(cont.content)
+        return ret

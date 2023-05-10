@@ -10,8 +10,8 @@ from django.contrib.auth.hashers import check_password
 from CleverDoctor.settings import STATUS_CODE
 from .serializers import AccountRegisterSerializer, AccountLoginSerializer, AccountCertifiedSerializer, \
     BriefInfoSerializer, DetailInfoSerializer, ChangeSerializer, DiagnosisSerializer, DetailDiagnosisSerializer, \
-    ChangeDiagnosisSerializer
-from .models import Account, DiagnosticRecords
+    ChangeDiagnosisSerializer, DetailMessage, DetailConversion
+from .models import Account, DiagnosticRecords, Context, Conversion
 from django.db.models import Q
 from CleverDoctor.utils import My_page
 from Hospital.models import Department
@@ -275,3 +275,19 @@ class GuestLogin(APIView):
             except:
                 return Response({"code": STATUS_CODE["fail"], "msg": "账号或密码错误！"})
         return Response({"code": STATUS_CODE["fail"], "msg": "邮箱格式错误！"})
+
+
+class SendMessage(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication, TokenAuthentication)
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        conv_uuid = request.query_params.get("conv_uuid", '')
+        content = request.data["content"]
+        try:
+            conv = Conversion.objects.get(uuid=conv_uuid)
+        except:
+            conv = Conversion.objects.create(patient=request.user, doctor_id=1)
+        context = Context.objects.create(content=content, speaker=request.user, conversion=conv)
+        return Response(
+            {"code": STATUS_CODE['success'], "msg": "发送成功！", "detail": DetailMessage(context).data})

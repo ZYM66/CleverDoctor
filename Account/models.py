@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from Hospital.models import Department
+import uuid
 
 
 def pic_path(instance, filename):
@@ -46,3 +47,24 @@ class DiagnosticRecords(models.Model):
 
     class Meta:
         verbose_name = "诊断信息"
+
+
+class Context(models.Model):
+    speaker = models.ForeignKey(verbose_name="说话人", to="Account", related_name="text", on_delete=models.CASCADE)
+    conversion = models.ForeignKey(verbose_name="聊天室", to="Conversion", related_name="context",
+                                   on_delete=models.CASCADE)
+    content = models.TextField(verbose_name="聊天内容", default="")
+    send_time = models.DateTimeField(verbose_name="发送时间", auto_now_add=True)
+
+    class Meta:
+        verbose_name = "对话"
+
+
+class Conversion(models.Model):
+    conv_name = models.CharField(verbose_name="聊天室名字", max_length=20, null=True, blank=True)
+    uuid = models.UUIDField(default=uuid.uuid4)
+    patient = models.ForeignKey(verbose_name="病人", to="Account",related_name="pat_conv", on_delete=models.CASCADE)
+    doctor = models.ForeignKey(verbose_name="医生", to="Account",related_name="doc_conv",  on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = "聊天室"
