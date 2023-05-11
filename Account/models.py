@@ -65,6 +65,7 @@ class Conversion(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4)
     patient = models.ForeignKey(verbose_name="病人", to="Account",related_name="pat_conv", on_delete=models.CASCADE)
     doctor = models.ForeignKey(verbose_name="医生", to="Account",related_name="doc_conv",  on_delete=models.CASCADE)
+    close = models.BooleanField(verbose_name="是否关闭", default=False)
 
     class Meta:
         verbose_name = "聊天室"

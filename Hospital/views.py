@@ -68,7 +68,6 @@ class ReadDepartment(APIView):
 
     def get(self, request):
         department_id = request.query_params.get('department_id')
-        print(department_id)
         return Response(
             {'code': STATUS_CODE['success'],
              'msg': IntroDepartmentSerializers(Department.objects.get(id=department_id)).data})
