@@ -291,3 +291,26 @@ class SendMessage(APIView):
         context = Context.objects.create(content=content, speaker=request.user, conversion=conv)
         return Response(
             {"code": STATUS_CODE['success'], "msg": "发送成功！", "detail": DetailMessage(context).data})
+
+
+class GetAllConversation(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication, TokenAuthentication)
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # return Response({"code": STATUS_CODE["success"],
+        #                  "conv": {str(conv.uuid): DetailConversion(conv).data for conv in Conversion.objects.all()}})
+        return Response({"code": STATUS_CODE["success"],
+                         "conv": [{"uuid": conv.uuid, "conv": DetailConversion(conv).data} for conv in
+                                  Conversion.objects.all()]})
+
+
+class FindPatConv(APIView):
+    authentication_classes = (CsrfExemptSessionAuthentication, TokenAuthentication)
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        return Response({"code": STATUS_CODE["success"],
+                         "conv": [{"uuid": conv.uuid, "conv": DetailConversion(conv).data} for conv in
+                                  Conversion.objects.all() if conv.close == 0]})

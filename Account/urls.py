@@ -1,5 +1,6 @@
 from .views import CreateUser, Login, Logout, CertifiedDoctor, DetailPerson, AllDoctor, EditDoctor, DeleteDoctor, \
-    ChangeInformation, Diagnose, AllMyDiagnose, UploadPicture, ChangeDiagnose, GuestLogin, SendMessage
+    ChangeInformation, Diagnose, AllMyDiagnose, UploadPicture, ChangeDiagnose, GuestLogin, SendMessage, \
+    GetAllConversation, FindPatConv
 from django.urls import path
 
 urlpatterns = [
@@ -17,5 +18,7 @@ urlpatterns = [
     path("upload_pic/", UploadPicture.as_view()),
     path("change_diag/", ChangeDiagnose.as_view()),
     path("guest_login/", GuestLogin.as_view()),
-    path("send_message/", SendMessage.as_view())
+    path("send_message/", SendMessage.as_view()),
+    path("all_conv/", GetAllConversation.as_view()),
+    path("find_pat/", FindPatConv.as_view())
 ]

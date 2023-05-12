@@ -155,7 +155,8 @@ class DetailConversion(serializers.ModelSerializer):
         fields = ["context"]
 
     def get_context(self, obj):
-        ret = {obj.patient.id:[], obj.doctor.id:[]}
-        for cont in obj.context.all():
-            ret[cont.speaker.id].append(cont.content)
-        return ret
+        # ret = {obj.patient.id:[], obj.doctor.id:[]}
+        # for cont in obj.context.all():
+        #     ret[cont.speaker.id].append(cont.content)
+        return [{"content": cont.content, "speaker": cont.speaker.real_name, "role": cont.speaker.role} for cont in
+                obj.context.all()]
