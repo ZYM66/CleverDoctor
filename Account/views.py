@@ -311,6 +311,15 @@ class FindPatConv(APIView):
 
     def get(self, request):
         user = request.user
-        return Response({"code": STATUS_CODE["success"],
+        page = My_page()
+        my_conv = [conv for conv in Conversion.objects.all() if conv.close == 0 and conv.doctor == user]
+        page_list = page.paginate_queryset(my_conv, request, view=self)
+        return Response({"code": STATUS_CODE["success"], "total_page": page.count_pages, "num_data": len(my_conv),
                          "conv": [{"uuid": conv.uuid, "conv": DetailConversion(conv).data} for conv in
-                                  Conversion.objects.all() if conv.close == 0]})
+                                  page_list]})
+
+    # return Response(
+    #     {'code': STATUS_CODE['success'], "total_page": page.count_pages, "num_data": len(doctors),
+    #      'info': [DetailInfoSerializer(doctor, context={"request": request}, many=False).data for doctor in
+    #               page_list if
+    #               doctor.is_active],
