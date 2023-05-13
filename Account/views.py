@@ -315,7 +315,7 @@ class FindPatConv(APIView):
         my_conv = [conv for conv in Conversion.objects.all() if conv.close == 0 and conv.doctor == user]
         page_list = page.paginate_queryset(my_conv, request, view=self)
         return Response({"code": STATUS_CODE["success"], "total_page": page.count_pages, "num_data": len(my_conv),
-                         "conv": [{"uuid": conv.uuid, "patient_id": conv.patient.id, "conv": DetailConversion(conv).data} for conv in
+                         "conv": [{"uuid": conv.uuid, "patient": DetailInfoSerializer(conv.patient).data, "conv": DetailConversion(conv).data} for conv in
                                   page_list]})
 
     # return Response(
