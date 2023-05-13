@@ -66,6 +66,7 @@ class Conversion(models.Model):
     patient = models.ForeignKey(verbose_name="病人", to="Account",related_name="pat_conv", on_delete=models.CASCADE)
     doctor = models.ForeignKey(verbose_name="医生", to="Account",related_name="doc_conv",  on_delete=models.CASCADE)
     close = models.BooleanField(verbose_name="是否关闭", default=False)
+    create_time = models.DateTimeField(verbose_name="创建时间", auto_now_add=True)
 
     class Meta:
         verbose_name = "聊天室"
