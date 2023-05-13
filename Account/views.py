@@ -316,11 +316,11 @@ class FindPatConv(APIView):
     def get(self, request):
         user = request.user
         page = My_page()
-        for cov in Conversion.objects.all():
-            print(datetime.datetime.now(), cov.create_time)
-            if cov.close == 0 and datetime.datetime.now().__ge__(
-                    (cov.create_time + datetime.timedelta(minutes=5)).replace(tzinfo=None)):
-                cov.delete()
+        # for cov in Conversion.objects.all():
+        #     print(datetime.datetime.now(), cov.create_time)
+        #     if cov.close == 0 and datetime.datetime.now().__ge__(
+        #             (cov.create_time + datetime.timedelta(minutes=5)).replace(tzinfo=None)):
+        #         cov.delete()
         my_conv = [conv for conv in Conversion.objects.all().order_by('-id') if conv.close == 0 and conv.doctor == user]
         page_list = page.paginate_queryset(my_conv, request, view=self)
         return Response({"code": STATUS_CODE["success"], "total_page": page.count_pages, "num_data": len(my_conv),
