@@ -37,30 +37,14 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "channels",
-    "chat",
     "Account",
     "Hospital",
     "rest_framework.authtoken"
 ]
 
-# 设置ASGI应用
-ASGI_APPLICATION = 'CleverDoctor.asgi.application'
+# # 设置ASGI应用
+# ASGI_APPLICATION = 'CleverDoctor.asgi.application'
 
-# 设置通道层的通信后台 - 本地测试用
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
-    }
-}
-# Channels 配置
-# CHANNEL_LAYERS = {
-#     'default': {
-#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
-#         'CONFIG': {
-#             'hosts': [('127.0.0.1', 6379)],
-#         },
-#     },
-# }
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',

@@ -23,7 +23,6 @@ from CleverDoctor import settings
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("chat/", include('chat.urls')),
     path("user/", include("Account.urls")),
     path("hospital/", include("Hospital.urls")),
     path(r'media/(?P<path>.*)', serve, {'document_root': settings.MEDIA_ROOT}),
